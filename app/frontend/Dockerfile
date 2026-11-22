@@ -1,0 +1,6 @@
+﻿FROM nginxinc/nginx-unprivileged:1.25-alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY index.html /usr/share/nginx/html/index.html
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD wget -qO- http://localhost:8080/ || exit 1
