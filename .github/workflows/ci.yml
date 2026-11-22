@@ -1,0 +1,29 @@
+﻿name: CI - Test & Build
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Lint & Test Backend
+        working-directory: app/backend
+        run: |
+          npm install
+          npm test
+      - name: Terraform Format & Validate
+        uses: hashicorp/setup-terraform@v3
+      - run: |
+          cd terraform
+          terraform fmt -check
+          terraform init -backend=false
+          terraform validate
+      - name: Docker Build Check (No Push)
+        run: |
+          docker build -t craon-backend:pr ./app/backend
+          docker build -t craon-frontend:pr ./app/frontend
